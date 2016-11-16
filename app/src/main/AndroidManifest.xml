@@ -3,6 +3,8 @@
           package="com.polytech.al.wristband">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -17,5 +19,8 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-feature android:name="android.hardware.location.gps" />
+
 
 </manifest>
