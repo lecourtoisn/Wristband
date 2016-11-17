@@ -5,8 +5,10 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -45,26 +47,34 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         assert(phone != null);
-
         try {
             socket = phone.createRfcommSocketToServiceRecord(uuid);
-            System.out.println("Trying too connect");
+            System.out.println("Trying to connect");
             socket.connect();
             Toast.makeText(MainActivity.this, "Connected to " + socket.getRemoteDevice().getName(), Toast.LENGTH_SHORT).show();
 
             InputStream inputStream = socket.getInputStream();
 
-            byte[] bytes = new byte[1024];
+            byte[] bytes = new byte[1];
             while (true) {
                 inputStream.read(bytes);
-                String message = new String(bytes).trim();
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+                byte code = bytes[0];
+
                 Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-                // Vibrate for 500 milliseconds
-                v.vibrate(500);
+//                View view = findViewById(R.id.screen);
+//                View root = view.getRootView();
+
+                int duration = (code == 0 ? 100 : 200);
+                int bgColor = (code == 0 ? Color.GREEN : Color.RED);
+                System.out.println(bgColor);
+
+                v.vibrate(duration);
+//                root.setBackgroundColor(bgColor);
             }
         } catch (IOException e) {
             System.out.println(e);
         }
     }
+
+
 }
