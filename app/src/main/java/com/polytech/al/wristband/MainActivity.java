@@ -1,62 +1,48 @@
 package com.polytech.al.wristband;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
+import android.bluetooth.BluetoothSocket;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.RelativeLayout;
+
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 
-    /**
-     * Récupère les positions et les print pour l'instant.
-     * @param savedInstanceState
-     */
+//    private static final int REQUEST_ENABLE_BT = 42;
+    private RelativeLayout RL;
+    private static final UUID uuid = UUID.fromString("33d08e9e-ac0d-11e6-80f5-76304dec7eb7");
+
+    private BluetoothSocket socket;
+    private int color;
+
+    public Handler handler = new Handler();
+
+     public Runnable changeColour = new Runnable() {
+        public void run() {
+            RL.setBackgroundColor(color);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        RL = (RelativeLayout)findViewById(R.id.Layout);
+
+        new AcceptConnexion(this).start();
+
+    }
 
 
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+    public void setColor(int color) {
+        this.color = color;
+    }
 
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-
-                // TODO la localisation est printée dans un premier temps
-                System.out.println(location);
-            }
-
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-
-            public void onProviderEnabled(String provider) {
-            }
-
-            public void onProviderDisabled(String provider) {
-            }
-        };
-
-        // Register the listener with the Location Manager to receive location updates
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-
+    public int getColor() {
+        return color;
     }
 }
