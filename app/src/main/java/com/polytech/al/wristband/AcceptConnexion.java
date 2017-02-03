@@ -33,6 +33,9 @@ public class AcceptConnexion extends Thread {
         }
     }
 
+    private boolean mustVibrate = false;
+    private boolean aroundBeacon = false;
+
     public void read() {
         try {
             byte[] bytes = new byte[1];
@@ -40,19 +43,50 @@ public class AcceptConnexion extends Thread {
                 int read = inputStream.read(bytes);
                 byte code = bytes[0];
                 Vibrator v = (Vibrator) activity.getSystemService(Context.VIBRATOR_SERVICE);
-                if (code == 1) {
-                    System.out.println("Droite");
-                    v.vibrate(100);
-                    Thread.sleep(300);
-                    v.vibrate(100);
-                    activity.setColor(Color.RED);
-                } else if (code == 2) {
-                    System.out.println("Gauche");
-                    v.vibrate(200);
-                    activity.setColor(Color.YELLOW);
+                System.out.println("recu "+code);
+                if (!aroundBeacon) {
+                    if (!mustVibrate && code == 1) {
+                        // droite si feu au vert
+                        System.out.println("Droite");
+                        v.vibrate(100);
+                        Thread.sleep(300);
+                        v.vibrate(100);
+                        activity.setColor(Color.RED);
+                    } else if (!mustVibrate && code == 2) {
+                        // gauche si feu au vert
+                        System.out.println("Gauche");
+                        v.vibrate(200);
+                        activity.setColor(Color.YELLOW);
+                    } else if (code == 3) {
+                        // feu au rouge
+                        mustVibrate = true;
+                        System.out.println("Vibration en continue");
+                        activity.setColor(Color.MAGENTA);
+                    } else if (code == 4) {
+                        // fin de feu au rouge, donc vert vraisemblablement
+                        mustVibrate = false;
+                    } else if (code == 5) {
+                        aroundBeacon = true;
+                        // si j'ai approché un beacon
+                        activity.setColor(Color.LTGRAY);
+                    } else if (mustVibrate) {
+                        activity.setColor(Color.MAGENTA);
+                    } else {
+                        activity.setColor(Color.GREEN);
+                    }
                 } else {
-                    activity.setColor(Color.GREEN);
+                    if (code == 5) {
+                        System.out.println("recu 5");
+                        aroundBeacon = true;
+                        // si j'ai approché un beacon
+                        activity.setColor(Color.LTGRAY);
+                    } else if (code == 6) {
+                        System.out.println("recu 6");
+                        // si je suis dans la bonne direction après avoir approché un beacon
+                        activity.setColor(Color.DKGRAY);
+                    }
                 }
+
                 activity.handler.post(activity.changeColour);
             }
         } catch (IOException | InterruptedException e) {
